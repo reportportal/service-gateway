@@ -1,0 +1,46 @@
+# Server Configuration
+server:
+  port: 8080
+
+  tomcat:
+    max-threads: 200
+
+
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+
+
+# Eureka Configuration
+eureka:
+  instance:
+    hostname: ${reportportal.eureka.instance.hostname:localhost}
+  client:
+    serviceUrl:
+      defaultZone: http://${reportportal.eureka.hostname:localhost}:8761/eureka/
+
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 90000
+
+ribbon:
+  ConnectTimeout: 20000
+  ReadTimeout: 60000
+  MaxTotalHttpConnections: 200
+  MaxHttpConnectionsPerHost: 100
+
+# Zuul Routes Configuration
+zuul:
+#  trace-request-body: true
+  sensitiveHeaders: Cookie,Set-Cookie
+  SendErrorFilter:
+    post:
+      disable: true
+  ignored-services: registry
+  routes:
+    # ROUTE EPAM STUFF EXPLICITLY
+    ui_icons:
+          path: /epam/**
+          serviceId: uat
+          stripPrefix: false

@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+      config:
+        uri: http://${reportportal.config.server.host:localhost}:8761/configs
+        failFast: true
+        # Wait for config server to start
+        retry:
+          max-attempts: 20
+          initial-interval: 3000
+  mvc:
+    favicon:
+      enabled: false
+info:
+  build:
+    name: Gateway Service
+    description: ReportPortal Gateway Service
+    version: '@version@'
