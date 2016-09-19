@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 buildscript {
     repositories {
         mavenCentral()
@@ -15,6 +17,8 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'spring-boot'
 apply plugin: "io.spring.dependency-management"
+apply plugin: 'findbugs'
+
 apply from: 'build-docker.gradle'
 
 sourceCompatibility = 1.8
@@ -50,6 +54,6 @@ dependencies {
 
 processResources {
     filesMatching('**/bootstrap.yaml') {
-        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [version: project.property("version")])
+        filter(ReplaceTokens, tokens: [version: project.property("version")])
     }
 }
