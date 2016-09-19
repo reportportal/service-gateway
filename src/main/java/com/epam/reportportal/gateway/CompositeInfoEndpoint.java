@@ -122,7 +122,7 @@ public class CompositeInfoEndpoint {
 	}
 
 	private Map<String, ?> getAllInfos() {
-		final Map<String, Object> infos = eurekaClient.getApplications().getRegisteredApplications().stream()
+		return eurekaClient.getApplications().getRegisteredApplications().stream()
 				.flatMap(app -> app.getInstances().stream())
 				.map(instanceInfo -> {
 					try {
@@ -139,6 +139,5 @@ public class CompositeInfoEndpoint {
 				}).collect(Collectors
 						.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
 								(value1, value2) -> value2));
-		return infos;
 	}
 }
