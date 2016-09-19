@@ -122,20 +122,23 @@ public class CompositeInfoEndpoint {
 	}
 
 	private Map<String, ?> getAllInfos() {
-		return eurekaClient.getApplications().getRegisteredApplications().stream().flatMap(app -> app.getInstances().stream())
+		final Map<String, Object> infos = eurekaClient.getApplications().getRegisteredApplications().stream()
+				.flatMap(app -> app.getInstances().stream())
 				.map(instanceInfo -> {
 					try {
-						System.out.println(instanceInfo.getStatusPageUrl());
 						HttpHeaders headers = new HttpHeaders();
 						headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 						return new AbstractMap.SimpleImmutableEntry<>(instanceInfo.getAppName(), restTemplate
-								.exchange(instanceInfo.getStatusPageUrl(), HttpMethod.GET, new HttpEntity<>(null, headers), Map.class)
+								.exchange(instanceInfo.getStatusPageUrl(), HttpMethod.GET,
+										new HttpEntity<>(null, headers), Map.class)
 								.getBody());
 					} catch (Exception e) {
 						LOGGER.error("Unable to obtain service info", e);
 						return new AbstractMap.SimpleImmutableEntry<>(instanceInfo.getAppName(), "DOWN");
 					}
-				}).collect(Collectors.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
-						(value1, value2) -> value2));
+				}).collect(Collectors
+						.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
+								(value1, value2) -> value2));
+		return infos;
 	}
 }
