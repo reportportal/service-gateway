@@ -39,6 +39,12 @@ zuul:
       disable: true
   ignored-services: registry
   routes:
+# ROUTE EPAM STUFF EXPLICITLY
+    uat:
+          path: /uat/**
+          serviceId: uat
+          sensitiveHeaders:
+
     # ROUTE EPAM STUFF EXPLICITLY
     ui_icons:
           path: /epam/**
