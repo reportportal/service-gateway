@@ -47,7 +47,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * @author Andrei Varabyeu
  */
 @Configuration
-public class MvcConfig extends WebMvcConfigurerAdapter {
+class MvcConfig extends WebMvcConfigurerAdapter {
 
 	private static final String UI_SERVICE = "/ui/";
 

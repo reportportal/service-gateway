@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 buildscript {
     repositories {
         mavenCentral()
@@ -7,6 +9,7 @@ buildscript {
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.0.RELEASE"
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.3'
 
     }
 }
@@ -14,6 +17,18 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'spring-boot'
 apply plugin: "io.spring.dependency-management"
+apply plugin: 'findbugs'
+
+apply from: 'build-docker.gradle'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+description = 'EPAM Report portal. Gateway Service'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.1'
+}
 
 
 repositories {
@@ -39,6 +54,6 @@ dependencies {
 
 processResources {
     filesMatching('**/bootstrap.yaml') {
-        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [version: project.property("version")])
+        filter(ReplaceTokens, tokens: [version: project.property("version")])
     }
 }

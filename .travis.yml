@@ -1,0 +1,15 @@
+language: java
+
+script: ./gradlew build
+
+jdk:
+  - oraclejdk8
+
+# Travis uses old JDK which causes a bug. Avoid it by installing newest version
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
+notifications:
+  slack: reportportal:fl6xWHVQp1jvsMmCJxYW9YKP

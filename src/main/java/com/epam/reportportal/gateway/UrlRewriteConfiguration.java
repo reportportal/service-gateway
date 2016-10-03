@@ -75,7 +75,7 @@ public class UrlRewriteConfiguration {
 
 	private static class ZuulMiltipartRewriteFilter implements Filter {
 
-		private String zuulServlet;
+		private final String zuulServlet;
 
 		ZuulMiltipartRewriteFilter(String zuulServlet) {
 			this.zuulServlet = zuulServlet;
