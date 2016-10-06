@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
 public class CompositeInfoEndpoint {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CompositeInfoEndpoint.class);
+	private static final String EXTENSION_KEY = "extension";
 
 	private final DiscoveryClient discoveryClient;
 
@@ -127,8 +128,8 @@ public class CompositeInfoEndpoint {
 	public Set<String> getExtensions() {
 		return discoveryClient.getServices().stream()
 				.flatMap(service -> discoveryClient.getInstances(service).stream())
-				.filter(instance -> instance.getMetadata().containsKey("extension"))
-				.map(instance -> instance.getMetadata().get("extension"))
+				.filter(instance -> instance.getMetadata().containsKey(EXTENSION_KEY))
+				.map(instance -> instance.getMetadata().get(EXTENSION_KEY))
 				.collect(Collectors.toSet());
 	}
 
