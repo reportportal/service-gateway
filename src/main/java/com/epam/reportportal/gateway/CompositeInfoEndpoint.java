@@ -56,6 +56,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -119,6 +120,16 @@ public class CompositeInfoEndpoint {
 	public Map<String, ?> composeInfos() {
 		return servicesInfos.get();
 
+	}
+
+	@GetMapping(value = "/composite/extensions")
+	@ResponseBody
+	public Set<String> getExtensions() {
+		return discoveryClient.getServices().stream()
+				.flatMap(service -> discoveryClient.getInstances(service).stream())
+				.filter(instance -> instance.getMetadata().containsKey("extension"))
+				.map(instance -> instance.getMetadata().get("extension"))
+				.collect(Collectors.toSet());
 	}
 
 	private Map<String, ?> getAllInfos() {
