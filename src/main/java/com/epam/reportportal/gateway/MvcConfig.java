@@ -56,6 +56,7 @@ class MvcConfig extends WebMvcConfigurerAdapter {
 		registry.addViewController("/").setViewName("redirect:" + UI_SERVICE);
 		registry.addViewController("/ui").setViewName("redirect:" + UI_SERVICE);
 		registry.addViewController("/favicon.ico").setViewName("redirect:" + UI_SERVICE + "favicon.ico");
+		registry.addViewController("/404.html").setViewName("redirect:" + UI_SERVICE + "404.html");
 		registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
 		super.addViewControllers(registry);
 	}

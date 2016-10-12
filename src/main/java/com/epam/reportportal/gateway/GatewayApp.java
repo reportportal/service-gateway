@@ -77,7 +77,7 @@ public class GatewayApp {
 	public static class WebConfiguration implements EmbeddedServletContainerCustomizer {
 		@Override
 		public void customize(ConfigurableEmbeddedServletContainer configurableEmbeddedServletContainer) {
-			configurableEmbeddedServletContainer.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "ui/404.html"));
+			configurableEmbeddedServletContainer.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/404.html"));
 		}
 	}
 
