@@ -1,7 +1,7 @@
 # Changelog
 
-## 2.6.0-SNAPSHOT
-##### Released: XXX September 2016
+## 2.6.0
+##### Released: 12 October 2016
 
 ### New Features
 
@@ -10,6 +10,4 @@
 
 ### Bugfixes
 
-* XXX
-
-
+* Redirect to correct UI service page if NOT FOUND
