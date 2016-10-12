@@ -3,4 +3,4 @@
 [![stackoverflow](https://img.shields.io/badge/reportportal-stackoverflow-orange.svg?style=flat)](http://stackoverflow.com/questions/tagged/reportportal)
 
 [![Build Status](https://travis-ci.org/reportportal/service-gateway.svg?branch=master)](https://travis-ci.org/reportportal/service-gateway)
-[ ![Download](https://api.bintray.com/packages/epam/reportportal/service-registry/images/download.svg) ](https://bintray.com/epam/reportportal/service-registry/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/epam/reportportal/service-gateway/images/download.svg) ](https://bintray.com/epam/reportportal/service-gateway/_latestVersion)
