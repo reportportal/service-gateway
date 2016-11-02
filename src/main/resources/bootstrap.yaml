@@ -18,3 +18,4 @@ info:
     name: Gateway Service
     description: ReportPortal Gateway Service
     version: '@version@'
+    branch: '@branch@'
