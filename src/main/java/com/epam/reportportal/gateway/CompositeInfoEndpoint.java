@@ -53,10 +53,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -130,7 +127,7 @@ public class CompositeInfoEndpoint {
 				.flatMap(service -> discoveryClient.getInstances(service).stream())
 				.filter(instance -> instance.getMetadata().containsKey(EXTENSION_KEY))
 				.map(instance -> instance.getMetadata().get(EXTENSION_KEY))
-				.collect(Collectors.toSet());
+				.collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	private Map<String, ?> getAllInfos() {
