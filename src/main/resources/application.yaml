@@ -4,6 +4,8 @@ server:
 
   tomcat:
     max-threads: 200
+  compression:
+    enabled: true
 
 
 endpoints:
