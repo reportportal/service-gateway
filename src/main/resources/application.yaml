@@ -42,6 +42,10 @@ zuul:
   ignored-services: registry
   routes:
 # ROUTE EPAM STUFF EXPLICITLY
+    api:
+          path: /api/v1/**
+          serviceId: api
+          strip-prefix: false
     uat:
           path: /uat/**
           serviceId: uat
