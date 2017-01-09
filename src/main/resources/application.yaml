@@ -45,7 +45,7 @@ zuul:
     api:
           path: /api/v1/**
           serviceId: api
-          strip-prefix: false
+          stripPrefix: false
     uat:
           path: /uat/**
           serviceId: uat
