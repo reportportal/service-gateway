@@ -46,10 +46,10 @@ zuul:
           path: /api/v1/**
           serviceId: api
           stripPrefix: false
-    uat:
-          path: /uat/**
-          serviceId: uat
-          sensitiveHeaders:
+#    uat:
+#          path: /uat/**
+#          serviceId: uat
+#          sensitiveHeaders:
 
     # ROUTE EPAM STUFF EXPLICITLY
     ui_icons:
