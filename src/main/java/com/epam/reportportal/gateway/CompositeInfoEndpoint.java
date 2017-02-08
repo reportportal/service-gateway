@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toMap;
+
 /**
  * Shares information about component versions
  *
@@ -79,21 +81,24 @@ public class CompositeInfoEndpoint {
 	@RequestMapping(value = "/composite/{endpoint}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public Map<String, ?> compose(@PathVariable("endpoint") String endpoint) {
-		return discoveryClient.getServices().stream().map(discoveryClient::getInstances).filter(instances -> !instances.isEmpty())
-				.map(instances -> instances.get(0))
-				.map((Function<ServiceInstance, AbstractMap.SimpleImmutableEntry<String, Object>>) service -> {
+		return discoveryClient.getServices().stream()
+				.map((Function<String, AbstractMap.SimpleImmutableEntry<String, Object>>) service -> {
 					try {
-
-						String protocol = service.isSecure() ? "https" : "http";
+						List<ServiceInstance> instances = discoveryClient.getInstances(service);
+						if (instances.isEmpty()){
+							return new AbstractMap.SimpleImmutableEntry<>(service, "DOWN");
+						}
+						ServiceInstance instance = instances.get(0);
+						String protocol = instance.isSecure() ? "https" : "http";
 						HttpHeaders headers = new HttpHeaders();
 						headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-						return new AbstractMap.SimpleImmutableEntry<>(service.getServiceId(), loadBalancedRestTemplate
+						return new AbstractMap.SimpleImmutableEntry<>(instance.getServiceId(), loadBalancedRestTemplate
 								.exchange(protocol + "://{service}/{endpoint}", HttpMethod.GET, new HttpEntity<>(null, headers), Map.class,
-										service.getServiceId(), endpoint).getBody());
+										instance.getServiceId(), endpoint).getBody());
 					} catch (Exception e) {
-						return new AbstractMap.SimpleImmutableEntry<>(service.getServiceId(), "");
+						return new AbstractMap.SimpleImmutableEntry<>(service, "DOWN");
 					}
-				}).collect(Collectors.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
+				}).collect(toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
 						(value1, value2) -> value2));
 
 	}
@@ -130,8 +135,7 @@ public class CompositeInfoEndpoint {
 						LOGGER.error("Unable to obtain service info", e);
 						return new AbstractMap.SimpleImmutableEntry<>(instanceInfo.getAppName(), "DOWN");
 					}
-				}).collect(Collectors
-						.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
+				}).collect(toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
 								(value1, value2) -> value2));
 	}
 }
