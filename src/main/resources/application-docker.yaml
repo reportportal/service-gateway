@@ -1,0 +1,10 @@
+server:
+  port: 8080
+
+# Eureka Configuration
+eureka:
+  instance:
+    hostname: gateway
+  client:
+    serviceUrl:
+      defaultZone: http://registry:8761/eureka/
