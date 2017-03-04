@@ -17,12 +17,13 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with Report Portal.  If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
 package com.epam.reportportal.gateway;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public class CompositeInfoEndpoint {
 	private final RestTemplate restTemplate;
 
 	/* Simple cache for 2 minutes to avoid calling to all services */
-	private final Supplier<Map<String, ?>> servicesInfos = Suppliers.memoizeWithExpiration(this::getAllInfos, 2, TimeUnit.MINUTES);
+	private final Supplier<Map<String, ?>> servicesInfos = Suppliers.memoizeWithExpiration(this::composeInfo, 2, TimeUnit.MINUTES);
 
 	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
@@ -81,25 +82,23 @@ public class CompositeInfoEndpoint {
 	@RequestMapping(value = "/composite/{endpoint}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public Map<String, ?> compose(@PathVariable("endpoint") String endpoint) {
-		return discoveryClient.getServices().stream()
-				.map((Function<String, AbstractMap.SimpleImmutableEntry<String, Object>>) service -> {
-					try {
-						List<ServiceInstance> instances = discoveryClient.getInstances(service);
-						if (instances.isEmpty()){
-							return new AbstractMap.SimpleImmutableEntry<>(service, "DOWN");
-						}
-						ServiceInstance instance = instances.get(0);
-						String protocol = instance.isSecure() ? "https" : "http";
-						HttpHeaders headers = new HttpHeaders();
-						headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-						return new AbstractMap.SimpleImmutableEntry<>(instance.getServiceId(), loadBalancedRestTemplate
-								.exchange(protocol + "://{service}/{endpoint}", HttpMethod.GET, new HttpEntity<>(null, headers), Map.class,
-										instance.getServiceId(), endpoint).getBody());
-					} catch (Exception e) {
-						return new AbstractMap.SimpleImmutableEntry<>(service, "DOWN");
-					}
-				}).collect(toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
-						(value1, value2) -> value2));
+		return discoveryClient.getServices().stream().map((Function<String, AbstractMap.SimpleImmutableEntry<String, Object>>) service -> {
+			try {
+				List<ServiceInstance> instances = discoveryClient.getInstances(service);
+				if (instances.isEmpty()) {
+					return new AbstractMap.SimpleImmutableEntry<>(service, "DOWN");
+				}
+				ServiceInstance instance = instances.get(0);
+				String protocol = instance.isSecure() ? "https" : "http";
+				HttpHeaders headers = new HttpHeaders();
+				headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+				return new AbstractMap.SimpleImmutableEntry<>(instance.getServiceId(), loadBalancedRestTemplate
+						.exchange(protocol + "://{service}/{endpoint}", HttpMethod.GET, new HttpEntity<>(null, headers), Map.class,
+								instance.getServiceId(), endpoint).getBody());
+			} catch (Exception e) {
+				return new AbstractMap.SimpleImmutableEntry<>(service, "DOWN");
+			}
+		}).collect(toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue, (value1, value2) -> value2));
 
 	}
 
@@ -110,32 +109,36 @@ public class CompositeInfoEndpoint {
 
 	}
 
+	@RequestMapping(value = "/composite/health", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public Map<String, ?> composeHealth() {
+		return eurekaClient.getApplications().getRegisteredApplications().stream().flatMap(app -> app.getInstances().stream())
+				.collect(Collectors.toMap(InstanceInfo::getAppName, InstanceInfo::getStatus));
+
+	}
+
 	@GetMapping(value = "/composite/extensions")
 	@ResponseBody
 	public Set<String> getExtensions() {
-		return discoveryClient.getServices().stream()
-				.flatMap(service -> discoveryClient.getInstances(service).stream())
+		return discoveryClient.getServices().stream().flatMap(service -> discoveryClient.getInstances(service).stream())
 				.filter(instance -> instance.getMetadata().containsKey(EXTENSION_KEY))
-				.map(instance -> instance.getMetadata().get(EXTENSION_KEY))
-				.collect(Collectors.toCollection(TreeSet::new));
+				.map(instance -> instance.getMetadata().get(EXTENSION_KEY)).collect(Collectors.toCollection(TreeSet::new));
 	}
 
-	private Map<String, ?> getAllInfos() {
-		return eurekaClient.getApplications().getRegisteredApplications().stream()
-				.flatMap(app -> app.getInstances().stream())
+	private Map<String, ?> composeInfo() {
+		return eurekaClient.getApplications().getRegisteredApplications().stream().flatMap(app -> app.getInstances().stream())
 				.map(instanceInfo -> {
 					try {
 						HttpHeaders headers = new HttpHeaders();
 						headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 						return new AbstractMap.SimpleImmutableEntry<>(instanceInfo.getAppName(), restTemplate
-								.exchange(instanceInfo.getStatusPageUrl(), HttpMethod.GET,
-										new HttpEntity<>(null, headers), Map.class)
+								.exchange(instanceInfo.getStatusPageUrl(), HttpMethod.GET, new HttpEntity<>(null, headers), Map.class)
 								.getBody());
 					} catch (Exception e) {
 						LOGGER.error("Unable to obtain service info", e);
 						return new AbstractMap.SimpleImmutableEntry<>(instanceInfo.getAppName(), "DOWN");
 					}
 				}).collect(toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue,
-								(value1, value2) -> value2));
+						(value1, value2) -> value2));
 	}
 }
