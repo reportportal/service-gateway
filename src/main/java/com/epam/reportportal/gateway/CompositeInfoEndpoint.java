@@ -117,14 +117,6 @@ public class CompositeInfoEndpoint {
 
 	}
 
-	@GetMapping(value = "/composite/extensions")
-	@ResponseBody
-	public Set<String> getExtensions() {
-		return discoveryClient.getServices().stream().flatMap(service -> discoveryClient.getInstances(service).stream())
-				.filter(instance -> instance.getMetadata().containsKey(EXTENSION_KEY))
-				.map(instance -> instance.getMetadata().get(EXTENSION_KEY)).collect(Collectors.toCollection(TreeSet::new));
-	}
-
 	private Map<String, ?> composeInfo() {
 		return eurekaClient.getApplications().getRegisteredApplications().stream().flatMap(app -> app.getInstances().stream())
 				.map(instanceInfo -> {
