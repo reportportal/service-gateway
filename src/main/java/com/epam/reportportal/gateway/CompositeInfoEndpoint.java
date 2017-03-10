@@ -21,8 +21,6 @@
 
 package com.epam.reportportal.gateway;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -39,8 +37,10 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -55,7 +55,6 @@ import static java.util.stream.Collectors.toMap;
 public class CompositeInfoEndpoint {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CompositeInfoEndpoint.class);
-	private static final String EXTENSION_KEY = "extension";
 
 	private final DiscoveryClient discoveryClient;
 
@@ -64,9 +63,6 @@ public class CompositeInfoEndpoint {
 	private final RestTemplate loadBalancedRestTemplate;
 
 	private final RestTemplate restTemplate;
-
-	/* Simple cache for 2 minutes to avoid calling to all services */
-	private final Supplier<Map<String, ?>> servicesInfos = Suppliers.memoizeWithExpiration(this::composeInfo, 2, TimeUnit.MINUTES);
 
 	@SuppressWarnings("SpringJavaAutowiringInspection")
 	@Autowired
@@ -105,7 +101,7 @@ public class CompositeInfoEndpoint {
 	@RequestMapping(value = "/composite/info", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public Map<String, ?> composeInfos() {
-		return servicesInfos.get();
+		return composeInfo();
 
 	}
 
