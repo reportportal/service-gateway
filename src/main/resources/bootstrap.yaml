@@ -14,3 +14,4 @@ info:
     description: ReportPortal Gateway Service
     version: '@version@'
     branch: '@branch@'
+    repo: '@repo@'
