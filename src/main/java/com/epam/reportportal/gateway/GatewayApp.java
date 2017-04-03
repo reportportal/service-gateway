@@ -51,6 +51,7 @@ public class GatewayApp {
 
     /**
      * Eureka-aware RestTemplate
+	 * @return {@link RestTemplate} wrapped by load-balancing proxy
      */
     @Bean
     @LoadBalanced
