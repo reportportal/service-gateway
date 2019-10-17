@@ -39,6 +39,7 @@ dependencies {
     compile 'org.springframework.cloud:spring-cloud-starter-eureka'
     compile 'org.springframework.cloud:spring-cloud-starter-zuul'
     compile 'org.springframework.retry:spring-retry'
+    compile 'org.apache.httpcomponents:httpclient'
 
 }
 
